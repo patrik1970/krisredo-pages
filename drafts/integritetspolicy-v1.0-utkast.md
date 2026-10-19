@@ -1,8 +1,8 @@
 # KrisRedo – Integritetspolicy
 
-> **GRANSKNINGSUTKAST – INTE SLUTGODKÄND ELLER PUBLICERAD SOM OFFICIELL INTEGRITETSPOLICY**
+> **GRANSKNINGSUTKAST – ÄNNU INTE SLUTGODKÄND SOM OFFICIELL INTEGRITETSPOLICY**
 >
-> Version 1.0 (utkast), 19 oktober 2026. Underlaget bygger på en statisk kodgranskning den 19 oktober 2026 av commit `ed6d0885d28bf63d39c68af544c9ca013e899c45` och identifierade lokala ändringar. Detta är inte en verifierad release. Dokumentet ska uppdateras under utvecklingen. GitHub Pages har inte aktiverats genom denna ändring.
+> Version 1.1 (utkast), 19 oktober 2026. Ursprungligt underlag: statisk kodgranskning av commit `ed6d0885d28bf63d39c68af544c9ca013e899c45` och lokala ändringar. Därefter har läkemedelschecklistans tillfälliga beteende verifierats på Android API 37 (16 KB) enligt KRD-PRIV-005.9 D.3. Den uppdaterade appkoden är fortfarande lokal och inte en verifierad publicerad release. Historisk nyckelrensning har kodgranskats och en test-APK har byggts, men Androidtest av den faktiska rensningen återstår. GitHub Pages-publicering är inte verifierad.
 
 ## 1. Om KrisRedo
 
@@ -26,13 +26,15 @@ Telefonens operativsystem och positionstjänster kan behandla uppgifter enligt s
 
 ### Checklistmarkeringar
 
-När du markerar en checklistpunkt sparar appen identifieraren för punkten i telefonens lokala applagring så att markeringen finns kvar mellan appstarter. Den granskade tjänsten sparar inte en separat historik över tidigare markeringar.
+För nio vanliga checklistgrupper sparar appen identifierare för markerade punkter i telefonens lokala applagring, så att markeringarna kan finnas kvar mellan appstarter. Den granskade tjänsten sparar inte en separat historik över tidigare markeringar. Läkemedelschecklistan behandlas annorlunda enligt avsnittet nedan.
 
 ### Läkemedelsrelaterade checklistpunkter
 
-Läkemedelsdelen innehåller fasta förberedelsepunkter, bland annat om receptbelagda läkemedel, förbrukningsartiklar, läkemedelslista, förvaring och utgångsdatum. Appen sparar vilka punkter du markerat, **inte** läkemedelsnamn, diagnoser, recept eller innehållet i någon läkemedelslista.
+Läkemedelsdelen innehåller fasta förberedelsepunkter, bland annat om receptbelagda läkemedel, förbrukningsartiklar, läkemedelslista, förvaring och utgångsdatum. Appen låter dig markera fasta punkter, **inte** ange läkemedelsnamn, diagnoser, recept eller innehållet i någon läkemedelslista. Även fasta markeringar kan vara integritetskänsliga.
 
-Sådana markeringar kan ändå vara integritetskänsliga. I den granskade implementationen sparas de genom samma lokala Preferences-lagring som övriga checklistor.
+I den uppdaterade, Androidtestade implementationen är läkemedelsmarkeringarna **tillfälliga per sidbesök**. De kan försvinna när du lämnar sidan och alla sex var omarkerade efter ett verifierat processavslut och en ny kallstart. De skrivs inte till appens permanenta checklistlagring av det nya läkemedelsflödet.
+
+Äldre versioner kan ha sparat sådana markeringar lokalt. Vid appstart försöker den uppdaterade appen ta bort den äldre lagringsnyckeln `emergency-kit.medicine.checklist.v1`. Funktionen är icke-blockerande och kan misslyckas; faktisk rensning av ett historiskt Androidvärde är ännu inte verifierad. Äldre säkerhetskopior kan fortfarande innehålla värden.
 
 ### Manuell ortsökning
 
@@ -40,13 +42,13 @@ Ortnamn som du anger används för sökning i lokala ortsregister. Ingen permane
 
 ## 4. Lokal lagring och säkerhet
 
-Checklistmarkeringar lagras lokalt genom Androids Preferences/SharedPreferences. Någon särskild appkryptering av checklistvärdena har inte verifierats i den granskade implementationen. Skyddsrums- och ortsregister lagras lokalt.
+De nio vanliga checklistgruppernas markeringar lagras lokalt genom Capacitor Preferences, som använder Androids SharedPreferences. Någon särskild appkryptering av dessa checklistvärden har inte verifierats. Skyddsrums- och ortsregister lagras lokalt.
 
-**Planerade skydd**, bland annat särskild krypterad läkemedelslagring och migrering av äldre markeringar, är ännu inte verifierade som implementerade och beskrivs därför inte som befintliga.
+Den uppdaterade läkemedelschecklistan håller markeringarna tillfälligt i sidans minne. För äldre permanent sparade läkemedelsmarkeringar görs ett riktat rensningsförsök vid appstart. Detta är inte en garanti för fysisk radering, och äldre säkerhetskopior påverkas inte automatiskt.
 
 ## 5. Android-säkerhetskopiering och telefonöverföring
 
-Checklistmarkeringar, även läkemedelsrelaterade markeringar, **kan omfattas** av Androids säkerhetskopiering och överföring mellan telefoner. Det faktiska beteendet beror på systemversion, inställningar och tjänster. Lokalt framtagna regler för undantag av skyddsrumsdatabasen undantar inte checklistornas SharedPreferences, och deras beteende i en distribuerad release är inte verifierat.
+De nio vanliga checklistgruppernas lokala markeringar **kan omfattas** av Androids säkerhetskopiering och överföring mellan telefoner. Läkemedelsmarkeringar från äldre appversioner **kan också finnas** i äldre säkerhetskopior. Det faktiska beteendet beror på systemversion, inställningar och tjänster. Lokalt framtagna regler för undantag av skyddsrumsdatabasen undantar inte checklistornas SharedPreferences, och deras beteende i en distribuerad release är inte verifierat.
 
 Att radera lokala uppgifter innebär inte att äldre säkerhetskopior automatiskt raderas.
 
@@ -76,7 +78,7 @@ Appen och dess underliggande bibliotek kan använda tekniska loggar. Kodgranskni
 
 ## 9. Lagringstid och radering
 
-Checklistmarkeringar sparas lokalt tills du ändrar dem eller appens lokala lagring tas bort. Du kan avmarkera enskilda punkter. Du kan också rensa appens lagring genom telefonens Android-inställningar; detta kan ta bort andra appuppgifter. Att rensa cache är inte samma sak som att rensa lagring. Äldre säkerhetskopior kan behöva hanteras separat.
+De nio vanliga checklistgruppernas markeringar sparas lokalt tills du ändrar dem eller appens lokala lagring tas bort. Du kan avmarkera enskilda punkter. Läkemedelsmarkeringarna i den uppdaterade versionen är tillfälliga och kan försvinna när sidan lämnas; de återkom inte efter kallstart i det genomförda Androidtestet. Du kan också rensa appens lagring genom telefonens Android-inställningar; detta kan ta bort andra appuppgifter. Att rensa cache är inte samma sak som att rensa lagring. Äldre säkerhetskopior kan behöva hanteras separat.
 
 Ingen funktion har identifierats som gör att den personuppgiftsansvarige på distans kan läsa eller radera användarens lokala checklistor.
 
@@ -102,4 +104,4 @@ När en officiell webbplats publiceras ska dess faktiska tekniska uppsättning o
 
 ---
 
-**Kvar före officiell publicering:** rättslig grund och eventuell artikel 9-bedömning, release- och loggningsverifiering, backuphantering, kontakt- och rättighetsrutiner, målgrupp samt slutlig Google Play Data Safety-bedömning. Dokumentet är inte ett påstående om full GDPR-efterlevnad.
+**Kvar före officiell publicering:** fastställ rättslig grund och eventuell artikel 9-bedömning, verifiera slutlig release och loggning, slutför kontroll av historisk nyckelrensning och backuphantering, besluta kontakt- och rättighetsrutiner samt målgrupp och slutlig Google Play Data Safety-bedömning. Detta utkast är inte ett påstående om full GDPR-efterlevnad. Dokumentet är inte ett påstående om full GDPR-efterlevnad.
