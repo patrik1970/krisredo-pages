@@ -2,7 +2,7 @@
 
 > **GRANSKNINGSUTKAST – ÄNNU INTE SLUTGODKÄND SOM OFFICIELL INTEGRITETSPOLICY**
 >
-> Version 1.1 (utkast), 19 oktober 2026. Ursprungligt underlag: statisk kodgranskning av commit `ed6d0885d28bf63d39c68af544c9ca013e899c45` och lokala ändringar. Därefter har läkemedelschecklistans tillfälliga beteende verifierats på Android API 37 (16 KB) enligt KRD-PRIV-005.9 D.3. Den uppdaterade appkoden är fortfarande lokal och inte en verifierad publicerad release. Historisk nyckelrensning har kodgranskats och en test-APK har byggts, men Androidtest av den faktiska rensningen återstår. GitHub Pages-publicering är inte verifierad.
+> Version 1.2 (utkast), 19 oktober 2026. Ursprungligt underlag: statisk kodgranskning av commit `ed6d0885d28bf63d39c68af544c9ca013e899c45` och lokala ändringar. Därefter har läkemedelschecklistans tillfälliga beteende verifierats på Android API 37 (16 KB) enligt KRD-PRIV-005.9 D.3. Den uppdaterade appkoden är fortfarande lokal och inte en verifierad publicerad release. Historisk nyckelrensning har nu verifierats i ett isolerat syntetiskt Androidtest på API 37 med 16 KB minnessidor (KRD-PRIV-005.9 D.10), med två godkända efterkontroller. Detta gäller testad debugversion, inte en verifierad publicerad release. GitHub Pages-publicering är inte verifierad.
 
 ## 1. Om KrisRedo
 
@@ -34,7 +34,7 @@ Läkemedelsdelen innehåller fasta förberedelsepunkter, bland annat om receptbe
 
 I den uppdaterade, Androidtestade implementationen är läkemedelsmarkeringarna **tillfälliga per sidbesök**. De kan försvinna när du lämnar sidan och alla sex var omarkerade efter ett verifierat processavslut och en ny kallstart. De skrivs inte till appens permanenta checklistlagring av det nya läkemedelsflödet.
 
-Äldre versioner kan ha sparat sådana markeringar lokalt. Vid appstart försöker den uppdaterade appen ta bort den äldre lagringsnyckeln `emergency-kit.medicine.checklist.v1`. Funktionen är icke-blockerande och kan misslyckas; faktisk rensning av ett historiskt Androidvärde är ännu inte verifierad. Äldre säkerhetskopior kan fortfarande innehålla värden.
+Äldre versioner kan ha sparat sådana markeringar lokalt. Vid appstart försöker den uppdaterade appen ta bort den äldre lagringsnyckeln `emergency-kit.medicine.checklist.v1`. Funktionen är icke-blockerande och kan misslyckas; riktad rensning av den historiska nyckeln har verifierats i den testade debugversionen med syntetiska värden vid två normala appstarter. Detta garanterar inte rensning under alla fel- eller avbrottsförhållanden. Äldre säkerhetskopior kan fortfarande innehålla värden.
 
 ### Manuell ortsökning
 
@@ -44,7 +44,7 @@ Ortnamn som du anger används för sökning i lokala ortsregister. Ingen permane
 
 De nio vanliga checklistgruppernas markeringar lagras lokalt genom Capacitor Preferences, som använder Androids SharedPreferences. Någon särskild appkryptering av dessa checklistvärden har inte verifierats. Skyddsrums- och ortsregister lagras lokalt.
 
-Den uppdaterade läkemedelschecklistan håller markeringarna tillfälligt i sidans minne. För äldre permanent sparade läkemedelsmarkeringar görs ett riktat rensningsförsök vid appstart. Detta är inte en garanti för fysisk radering, och äldre säkerhetskopior påverkas inte automatiskt.
+Den uppdaterade läkemedelschecklistan håller markeringarna tillfälligt i sidans minne. För äldre permanent sparade läkemedelsmarkeringar görs ett riktat rensningsförsök vid appstart. I ett avgränsat Androidtest försvann den historiska läkemedelsnyckeln medan nio andra checklistvärden och en orelaterad kontroll förblev oförändrade efter två appstarter. Detta är inte en garanti för fysisk radering eller för alla driftsförhållanden, och äldre säkerhetskopior påverkas inte automatiskt.
 
 ## 5. Android-säkerhetskopiering och telefonöverföring
 
@@ -104,4 +104,4 @@ När en officiell webbplats publiceras ska dess faktiska tekniska uppsättning o
 
 ---
 
-**Kvar före officiell publicering:** fastställ rättslig grund och eventuell artikel 9-bedömning, verifiera slutlig release och loggning, slutför kontroll av historisk nyckelrensning och backuphantering, besluta kontakt- och rättighetsrutiner samt målgrupp och slutlig Google Play Data Safety-bedömning. Detta utkast är inte ett påstående om full GDPR-efterlevnad. Dokumentet är inte ett påstående om full GDPR-efterlevnad.
+**Kvar före officiell publicering:** fastställ rättslig grund och eventuell artikel 9-bedömning, verifiera slutlig release och loggning, verifiera motsvarande beteende i den avsedda releaseversionen och utred backuphantering, besluta kontakt- och rättighetsrutiner samt målgrupp och slutlig Google Play Data Safety-bedömning. Detta utkast är inte ett påstående om full GDPR-efterlevnad. Dokumentet är inte ett påstående om full GDPR-efterlevnad.
